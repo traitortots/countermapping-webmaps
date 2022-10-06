@@ -12,13 +12,13 @@
   </head>
   <body>
     <div id="map">
-    </div>
-  
+    </div> 
   
       <div class="map-overlay top">
       <div class="map-overlay-inner">
       <h2>Public and Affordable Housing Flood Risk</h2>
-      <!-- INSERT TEXT HERE -->
+      <p>This map shows the areas flooded by Hurricane Sandy in 2012 (in <span style="color:#00158f;">blue</span>), and the locations of public housing owned by the New York City Housing Authority (in <span style="color:red;">red</span>)</p>
+      <p>Data from <a href="https://data.cityofnewyork.us/">NYC Open Data</a></p>
       </div>
       </div>
   
@@ -27,8 +27,8 @@
   mapboxgl.accessToken = 'pk.eyJ1IjoiY2FsZWItdGhvbWFzLXNtaXRoIiwiYSI6ImNsNXY2aTVvODAxcHgzY204Y3VtaXdvbDgifQ.ymP724CF_-YRwPfKRN7_GA'
   const map = new mapboxgl.Map({
         container: 'map', // container id
-        style: 'mapbox://styles/caleb-thomas-smith/cl8x5nuds000q14pij39flglc', //replace this with your style URL
-        center: [-73.935242, 40.730610], // The convention for coordinates is  typically [long, lat]
+        style: 'mapbox://styles/caleb-thomas-smith/cl8x5nuds000q14pij39flglc', 
+        center: [-73.935242, 40.730610],
         zoom: 12,
       });
 
@@ -41,18 +41,37 @@
       'url': 'mapbox://caleb-thomas-smith.0aif1v3r'
     });
     
+    
+    map.addSource('nychaLayer',{
+        'type':'vector',
+        'url': 'mapbox://caleb-thomas-smith.44vlvq6e'
+      });
+
+
     // add a new layer with your polygons
     map.addLayer({
       'id':'flood_zones',
       'type':'fill',
       'source':'sandy_layer',
-      'source':'Sandy_Inundation_Zone-9ij9ih',
+      'source-layer':'Sandy_Inundation_Zone-9ij9ih',
       'paint':{
         'fill-color':'#00158f',
         'fill-opacity': 0.5,
       }
-    })
-});
+    });
+
+    map.addLayer({
+        'id':'nychaBuildings',
+        'type':'fill',
+        'source':'nychaLayer',
+        'source-layer':'Map_of_NYCHA_Developments-dbfjcs',
+        'paint':{
+          'fill-color':'red',
+          'fill-opacity': 0.5
+        }
+      })
+  });
+
   </script>
   </body>
 </html>
