@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>NYC Housing Flood Risk</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+<script src='https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.css' rel='stylesheet' />
+<link href='style.css' rel='stylesheet' />
+<link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="map"></div>
+	<div class="map-overlay">
+	<div class="map-overlay-inner">
+	<h2>Public and Affordable Housing Flood Risk</h2>
+  <h3>Layers</h3>
+	<div id='menu'>
+        <label class='check-container'>
+            Sandy Inundation Zone
+            <input id='floodZones' type='checkbox' name='viz-toggle' checked='checked'>
+          </label>
+
+        <label class='check-container'>
+            NYCHA Buildings
+            <input id='nychaBuildings' type='checkbox' name='viz-toggle' checked='checked'>
+        </label>
+
+        <label class='check-container'>
+            +300 People Below Poverty Line
+            <input id='povertyLevel' type='checkbox' name='viz-toggle' checked='checked'>
+        </label>
+
+        <label class='check-container'>
+          2020 predicted floodplains (1 in 100 year flood)
+          <input id='2020_1in100' type='checkbox' name='viz-toggle' checked='checked'>
+        </label>
+
+        <label class='check-container'>
+          2020 predicted floodplains (once in 500 year flood)
+            <input id='2020_1in500' type='checkbox' name='viz-toggle' checked='checked'>
+        </label>
+      </div>
+
+	</div>
+  <script>
+  mapboxgl.accessToken = 'pk.eyJ1IjoiY2FsZWItdGhvbWFzLXNtaXRoIiwiYSI6ImNsNXY2aTVvODAxcHgzY204Y3VtaXdvbDgifQ.ymP724CF_-YRwPfKRN7_GA';
+  const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/caleb-thomas-smith/cl8x5nuds000q14pij39flglc', 
+    center: [-73.935242, 40.730610], 
+    zoom: 13,
+  });
+
+  map.on('load',function(){
+
+    map.addSource('2020_1in100',{
+      'type':'vector',
+      'url': 'mapbox://iamwfx.bbchggzx'
+    });
+
+    map.addSource('2020_1in500',{
+      'type':'vector',
+      'url': 'mapbox://iamwfx.05ogder8'
+    });    
+    
+    map.addSource('sandyLayer',{
+      'type':'vector',
+      'url': 'mapbox://caleb-thomas-smith.0aif1v3r'
+    });
+
+    map.addSource('nychaLayer',{
+      'type':'vector',
+      'url': 'mapbox://caleb-thomas-smith.44vlvq6e'
+    });
+
+    map.addSource('censusLayer',{
+      'type':'vector',
+      'url': 'mapbox://iamwfx.6nowkujs'
+    });
+
+    map.addLayer({'id':'2020_1in100',
+      'type':'fill',
+      'source':'2020_1in100',
+      'source-layer':'FutureFloodplains_2020_100yr-du18hr',
+      'paint':{
+        'fill-color':'cyan',
+        'fill-opacity': 0.5
+      }
+    })
+
+    map.addLayer({'id':'2020_1in500',
+      'type':'fill',
+      'source':'2020_1in500',
+      'source-layer':'FutureFloodplains_2020_500yr-0x77x0',
+      'paint':{
+        'fill-color':'cornflowerblue',
+        'fill-opacity': 0.5
+      }
+    })
+
+    map.addLayer({'id':'povertyLevel',
+      'type':'fill',
+      'source':'censusLayer',
+      'source-layer':'nyc_blck_grp_2020_wcensus_dro-4db43i',
+      'paint':{
+        'fill-color':
+            [
+                'step',
+                ['get','AMR5E002'],
+                '#edf8e9',300,'#f5ef42'
+            ],
+        'fill-opacity': 
+            [
+                'step',
+                ['get','AMR5E002'],
+                0,300,.8
+            ]
+      }
+    });
+
+    map.addLayer({'id':'nychaBuildings',
+      'type':'fill',
+      'source':'nychaLayer',
+      'source-layer':'Map_of_NYCHA_Developments-dbfjcs',
+      'paint':{
+        'fill-color':'red',
+        'fill-opacity': 0.5
+      }
+    })
+
+    map.addLayer({'id':'floodZones',
+      'type':'fill',
+      'source':'sandyLayer',
+      'source-layer':'Sandy_Inundation_Zone-9ij9ih',
+      'paint':{
+        'fill-color':'#00158f',
+        'fill-opacity': 0.5
+      }
+    });
+
+    map.setLayoutProperty('floodZones',"visibility", "visible");
+    map.setLayoutProperty('povertyLevel',"visibility", "visible");
+    map.setLayoutProperty('nychaBuildings',"visibility", "visible");
+    map.setLayoutProperty('2020_1in100',"visibility", "visible");
+    map.setLayoutProperty('2020_1in500',"visibility", "visible");
+   
+    var layerList = document.getElementById("menu");
+    var checkboxes = layerList.getElementsByTagName("input");
+
+    function switchLayer(layer) {
+        var clickedLayersLabel = layer.target.id; // get the label of the layer cluster
+        var clickedLayers = eval(clickedLayersLabel); // create the variable from the label using the eval function
+        var visibility = map.getLayoutProperty(clickedLayersLabel, "visibility"); // check whether the cluster of layers is visible by checking the first entry
+        if (visibility === "visible") {
+            map.setLayoutProperty(clickedLayersLabel, "visibility", "none")
+        } 
+        else {
+            map.setLayoutProperty(clickedLayersLabel, "visibility", "visible")
+        }
+    }
+    
+    for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].onclick = switchLayer;
+    }
+    
+    });
+  
+  </script>
+</body>
+
+</html>
